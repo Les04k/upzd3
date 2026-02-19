@@ -1,0 +1,94 @@
+Скрипт базы данных:
+-- phpMyAdmin SQL Dump
+-- version 5.2.0
+-- https://www.phpmyadmin.net/
+-- Хост: 127.0.0.1:3306
+-- Время создания: Фев 19 2026 г., 13:16
+-- Версия сервера: 5.7.39
+-- Версия PHP: 7.2.34
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+-- База данных: `upzd3`
+-- Структура таблицы `numbers`
+CREATE TABLE `numbers` (
+  `id_n` int(11) NOT NULL,
+  `type` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `charakteristik` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `price` int(11) NOT NULL,
+  `img` varchar(125) COLLATE utf8mb4_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- Структура таблицы `orders`
+CREATE TABLE `orders` (
+  `id_o` int(11) NOT NULL,
+  `id_u` int(11) NOT NULL,
+  `fio` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone` varchar(25) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `date1` date NOT NULL COMMENT 'дата заселения',
+  `date2` date NOT NULL COMMENT 'дата выселения',
+  `id_n` int(11) NOT NULL,
+  `status` varchar(17) COLLATE utf8mb4_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- Структура таблицы `role`
+CREATE TABLE `role` (
+  `id_role` int(11) NOT NULL,
+  `name` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- Дамп данных таблицы `role`
+INSERT INTO `role` (`id_role`, `name`) VALUES
+(1, 'Гость'),
+(2, 'Администратор');
+-- Структура таблицы `users`
+CREATE TABLE `users` (
+  `id_u` int(11) NOT NULL,
+  `fio` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `logins` varchar(35) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `passwrd` varchar(35) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id_role` int(11) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- Индексы сохранённых таблиц
+-- Индексы таблицы `numbers`
+ALTER TABLE `numbers`
+  ADD PRIMARY KEY (`id_n`);
+-- Индексы таблицы `orders`
+ALTER TABLE `orders`
+  ADD PRIMARY KEY (`id_o`),
+  ADD KEY `id_u` (`id_u`),
+  ADD KEY `id_n` (`id_n`);
+-- Индексы таблицы `role`
+ALTER TABLE `role`
+  ADD PRIMARY KEY (`id_role`);
+-- Индексы таблицы `users`
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id_u`),
+  ADD KEY `id_role` (`id_role`);
+-- AUTO_INCREMENT для сохранённых таблиц
+-- AUTO_INCREMENT для таблицы `numbers`
+ALTER TABLE `numbers`
+  MODIFY `id_n` int(11) NOT NULL AUTO_INCREMENT;
+-- AUTO_INCREMENT для таблицы `orders`
+ALTER TABLE `orders`
+  MODIFY `id_o` int(11) NOT NULL AUTO_INCREMENT;
+-- AUTO_INCREMENT для таблицы `role`
+ALTER TABLE `role`
+  MODIFY `id_role` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+-- AUTO_INCREMENT для таблицы `users`
+ALTER TABLE `users`
+  MODIFY `id_u` int(11) NOT NULL AUTO_INCREMENT;
+-- Ограничения внешнего ключа сохраненных таблиц
+-- Ограничения внешнего ключа таблицы `orders`
+ALTER TABLE `orders`
+  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`id_u`) REFERENCES `users` (`id_u`),
+  ADD CONSTRAINT `orders_ibfk_2` FOREIGN KEY (`id_n`) REFERENCES `numbers` (`id_n`);
+-- Ограничения внешнего ключа таблицы `users`
+ALTER TABLE `users`
+  ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`id_role`) REFERENCES `role` (`id_role`);
+COMMIT;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
