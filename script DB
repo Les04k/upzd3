@@ -1,20 +1,33 @@
-Скрипт базы данных:
+Скрипт БД:
 -- phpMyAdmin SQL Dump
 -- version 5.2.0
 -- https://www.phpmyadmin.net/
+--
 -- Хост: 127.0.0.1:3306
--- Время создания: Фев 19 2026 г., 13:16
+-- Время создания: Фев 24 2026 г., 11:20
 -- Версия сервера: 5.7.39
 -- Версия PHP: 7.2.34
+
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
+
+
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
+
+--
 -- База данных: `upzd3`
+--
+
+-- --------------------------------------------------------
+
+--
 -- Структура таблицы `numbers`
+--
+
 CREATE TABLE `numbers` (
   `id_n` int(11) NOT NULL,
   `type` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -22,28 +35,66 @@ CREATE TABLE `numbers` (
   `price` int(11) NOT NULL,
   `img` varchar(125) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Дамп данных таблицы `numbers`
+--
+
+INSERT INTO `numbers` (`id_n`, `type`, `charakteristik`, `price`, `img`) VALUES
+(1, 'Стандарт', 'Включен завтрак\r\nДуш + Ванна', 10000, 'img/standart.png'),
+(2, 'Студия', 'Включен завтрак, обед\r\nДуш + Ванна\r\nКондиционер', 8000, 'img/studio.jpg'),
+(3, 'Люкс', 'Включен завтрак, обед, ужин\r\nДуш + Ванна\r\nКондиционер\r\nТелевизор\r\nМини-бар\r\nВид на город', 19000, 'img/lux.png');
+
+-- --------------------------------------------------------
+
+--
 -- Структура таблицы `orders`
+--
+
 CREATE TABLE `orders` (
   `id_o` int(11) NOT NULL,
   `id_u` int(11) NOT NULL,
   `fio` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `phone` varchar(25) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
   `email` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
   `date1` date NOT NULL COMMENT 'дата заселения',
   `date2` date NOT NULL COMMENT 'дата выселения',
   `id_n` int(11) NOT NULL,
   `status` varchar(17) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Дамп данных таблицы `orders`
+--
+
+INSERT INTO `orders` (`id_o`, `id_u`, `fio`, `phone`, `email`, `date1`, `date2`, `id_n`, `status`) VALUES
+(4, 1, 'Песоцкий Александр Сергеевич', '+7(423)321-43-12', 'test@mail.ru', '2026-04-01', '2026-04-16', 1, 'Подтверждена');
+
+-- --------------------------------------------------------
+
+--
 -- Структура таблицы `role`
+--
+
 CREATE TABLE `role` (
   `id_role` int(11) NOT NULL,
   `name` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
 -- Дамп данных таблицы `role`
+--
+
 INSERT INTO `role` (`id_role`, `name`) VALUES
 (1, 'Гость'),
 (2, 'Администратор');
+
+-- --------------------------------------------------------
+
+--
 -- Структура таблицы `users`
+--
+
 CREATE TABLE `users` (
   `id_u` int(11) NOT NULL,
   `fio` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -51,44 +102,93 @@ CREATE TABLE `users` (
   `passwrd` varchar(35) COLLATE utf8mb4_unicode_ci NOT NULL,
   `id_role` int(11) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Дамп данных таблицы `users`
+--
+
+INSERT INTO `users` (`id_u`, `fio`, `logins`, `passwrd`, `id_role`) VALUES
+(1, 'Песоцкий Александр Сергеевич', 'alex', 'alex', 1),
+(2, 'Иванов Иван Иванович', 'ivan', 'ivan', 1),
+(3, 'Антон Александрович', 'hotel123', 'adminHotel', 2);
+
+--
 -- Индексы сохранённых таблиц
+--
+
+--
 -- Индексы таблицы `numbers`
+--
 ALTER TABLE `numbers`
   ADD PRIMARY KEY (`id_n`);
+
+--
 -- Индексы таблицы `orders`
+--
 ALTER TABLE `orders`
   ADD PRIMARY KEY (`id_o`),
   ADD KEY `id_u` (`id_u`),
   ADD KEY `id_n` (`id_n`);
+
+--
 -- Индексы таблицы `role`
+--
 ALTER TABLE `role`
   ADD PRIMARY KEY (`id_role`);
+
+--
 -- Индексы таблицы `users`
+--
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id_u`),
   ADD KEY `id_role` (`id_role`);
+
+--
 -- AUTO_INCREMENT для сохранённых таблиц
+--
+
+--
 -- AUTO_INCREMENT для таблицы `numbers`
+--
 ALTER TABLE `numbers`
-  MODIFY `id_n` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_n` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT для таблицы `orders`
+--
 ALTER TABLE `orders`
-  MODIFY `id_o` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_o` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
 -- AUTO_INCREMENT для таблицы `role`
+--
 ALTER TABLE `role`
   MODIFY `id_role` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT для таблицы `users`
+--
 ALTER TABLE `users`
-  MODIFY `id_u` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_u` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- Ограничения внешнего ключа сохраненных таблиц
+--
+
+--
 -- Ограничения внешнего ключа таблицы `orders`
+--
 ALTER TABLE `orders`
   ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`id_u`) REFERENCES `users` (`id_u`),
   ADD CONSTRAINT `orders_ibfk_2` FOREIGN KEY (`id_n`) REFERENCES `numbers` (`id_n`);
+
+--
 -- Ограничения внешнего ключа таблицы `users`
+--
 ALTER TABLE `users`
   ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`id_role`) REFERENCES `role` (`id_role`);
 COMMIT;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
