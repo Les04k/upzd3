@@ -1,0 +1,141 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+class Main extends CI_Controller {
+public function index()
+{
+    $this->load->view('temp/header.php');
+    $this->load->view('temp/nav.php');
+    $this->load->view('filter.php');
+    $this->load->model('numbersmodel');
+    $category = $this->input->post('category');
+    if(!empty($category) && $category != 'all') {
+        $data['result'] = $this->numbersmodel->sel_all($category);
+    } else {
+        $data['result'] = $this->numbersmodel->sel_all();
+    }
+    $this->load->view('index.php', $data);
+    $this->load->view('temp/footer.php');
+}
+public function order(): void
+{    $this->load->view('temp/header.php');
+    $this->load->view('temp/nav.php');
+    $this->load->model('numbersmodel');
+    $id_n = (int)$this->input->get('id_n');
+    if($id_n > 0) {
+        $data['room'] = $this->numbersmodel->get_room($id_n);
+    } else {        redirect('main');
+    }
+    if(!$this->session->userdata('user_id')) {
+        $this->session->set_userdata('redirect_url', current_url());
+        $data['need_login'] = true;
+        $this->load->view('order.php', $data);
+        $this->load->view('temp/footer.php');
+        return;    }
+    $this->load->model('ordermodel');
+    $user_id = $this->session->userdata('user_id');
+    $this->load->model('usermodel');
+    $user = $this->usermodel->get_user($user_id);
+    if($_POST) {
+        $phone = $this->input->post('phone');
+        $email = $this->input->post('email');
+        $date1 = $this->input->post('date1');
+        $date2 = $this->input->post('date2');
+        $error = false;
+        if(empty($phone) || !preg_match('/^\+7\(\d{3}\)\d{3}-\d{2}-\d{2}$/', $phone)) {
+            $data['phone_error'] = 'Некорректный телефон';
+            $error = true;        }
+        if(empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $data['email_error'] = 'Некорректный email';
+            $error = true;        }
+        $today = date('Y-m-d');
+        if(empty($date1) || $date1 < $today) {
+            $data['date1_error'] = 'Дата заезда не может быть раньше текущей';
+            $error = true;        }
+        if(empty($date2) || $date2 <= $date1) {
+            $data['date2_error'] = 'Дата выезда должна быть позже даты заезда';
+            $error = true;        }
+        if(!$error) {
+            if($this->ordermodel->check_dates($id_n, $date1, $date2)) {
+                $order_data = array(
+                    'id_u' => $user_id,
+                    'fio' => $user['fio'],
+                    'phone' => $phone,
+                    'email' => $email,
+                    'date1' => $date1,
+                    'date2' => $date2,
+                    'id_n' => $id_n,
+                    'status' => 'Новая');
+                if($this->ordermodel->save_order($order_data)) {
+                    $data['success'] = true;}
+            } else {
+                $data['date_error'] = 'Данные даты уже заняты';
+            }}}
+    $data['user'] = $user;
+    $this->load->view('order.php', $data);
+    $this->load->view('temp/footer.php');
+}
+public function login()
+{
+    $this->load->view('temp/header.php');
+    $this->load->view('temp/nav.php');
+    if($this->session->userdata('user_id')) {
+        redirect('main');
+    }
+    if($_POST) {
+        $login = $this->input->post('login');
+        $password = $this->input->post('password');
+        $this->load->model('usermodel');
+        $user = $this->usermodel->login($login, $password);
+        if($user) {
+            $this->session->set_userdata('user_id', $user['id_u']);
+            $this->session->set_userdata('user_fio', $user['fio']);
+            $this->session->set_userdata('user_login', $user['logins']);
+            $this->session->set_userdata('user_role', $user['id_role']);
+            $redirect = $this->session->userdata('redirect_url');
+            if($redirect) {
+                $this->session->unset_userdata('redirect_url');
+                redirect($redirect);
+            } else {redirect('main');}
+        } else {$data['error'] = 'Неверный логин или пароль';}
+    }
+    
+    $this->load->view('login.php', $data ?? []);
+    $this->load->view('temp/footer.php');
+}
+public function logout(): void
+{$this->session->sess_destroy();
+    redirect('main');}
+public function register(): void
+{$this->load->view('temp/header.php');
+    $this->load->view('temp/nav.php');
+    if($this->session->userdata('user_id')) {
+        redirect('main');}
+    if($_POST) {
+        $fio = $this->input->post('fio');
+        $login = $this->input->post('login');
+        $password = $this->input->post('password');
+        $password2 = $this->input->post('password2');
+        $error = false;
+        if(empty($fio) || !preg_match('/^[а-яА-ЯёЁ\s\.\-]+$/u', $fio)) {
+            $data['fio_error'] = 'Введите корректное ФИО';
+            $error = true;}
+        if(empty($login) || strlen($login) < 3) {
+            $data['login_error'] = 'Логин должен быть не менее 3 символов';
+            $error = true;}
+        if(empty($password) || strlen($password) < 4) {
+            $data['password_error'] = 'Пароль должен быть не менее 4 символов';
+            $error = true;}
+        if($password != $password2) {
+            $data['password2_error'] = 'Пароли не совпадают';
+            $error = true;}
+        if(!$error) {
+            $this->load->model('usermodel');
+            if($this->usermodel->check_login($login)) {
+                $data['login_error'] = 'Такой логин уже существует';
+            } else {
+                if($this->usermodel->register($fio, $login, $password)) {
+                    $data['success'] = 'Регистрация прошла успешно! Теперь вы можете войти.';
+                } else {
+                    $data['error'] = 'Ошибка при регистрации';
+                }}}}$this->load->view('register.php', $data ?? []);
+    $this->load->view('temp/footer.php');}}
