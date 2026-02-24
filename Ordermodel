@@ -1,0 +1,32 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Ordermodel extends CI_Model {
+    public function check_dates($id_n, $date1, $date2)
+    {
+        $sql = "SELECT * FROM orders WHERE id_n = $id_n 
+                AND (
+                    (date1 <= '$date1' AND date2 >= '$date1') OR
+                    (date1 <= '$date2' AND date2 >= '$date2') OR
+                    (date1 >= '$date1' AND date2 <= '$date2')
+                )";
+        $result = $this->db->query($sql);
+        return $result->num_rows() == 0;
+    }
+    public function save_order($data)
+    {
+        $sql = "INSERT INTO orders (fio, phone, email, date1, date2, id_n, status) 
+                VALUES ('".$data['fio']."', '".$data['phone']."', '".$data['email']."', '".$data['date1']."', '".$data['date2']."', '".$data['id_n']."', '".$data['status']."')";
+        return $this->db->query($sql);
+    }
+    public function get_all_orders()
+    {
+        $sql = "SELECT orders.*, numbers.type as room_type, numbers.price 
+                FROM orders 
+                LEFT JOIN numbers ON orders.id_n = numbers.id 
+                ORDER BY orders.date1 DESC";
+        $result = $this->db->query($sql);
+        return $result->result_array();
+    }
+}
+?>
