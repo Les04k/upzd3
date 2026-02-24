@@ -1,0 +1,39 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+class Admin extends CI_Controller {
+    public function index()
+    {
+        if($this->session->userdata('user_role') != 2) {
+            redirect('main');
+        }
+        $this->load->view('temp/header.php');
+        $this->load->view('temp/nav_admin.php');
+        $sql = "SELECT orders.*, numbers.type as room_type, numbers.price 
+                FROM orders 
+                LEFT JOIN numbers ON orders.id_n = numbers.id_n 
+                ORDER BY orders.date1 DESC";
+        $query = $this->db->query($sql);
+        $data['orders'] = $query->result_array();
+        $this->load->view('admin.php', $data);
+        $this->load->view('temp/footer.php');
+    }
+    public function approve($id_o)
+    {
+        if($this->session->userdata('user_role') != 2) {
+            redirect('main');
+        }
+        $sql = "UPDATE orders SET status = 'Подтверждена' WHERE id_o = $id_o";
+        $this->db->query($sql);
+        redirect('admin');
+    }
+    public function delete($id_o)
+    {
+        if($this->session->userdata('user_role') != 2) {
+            redirect('main');
+        }
+        $sql = "DELETE FROM orders WHERE id_o = $id_o";
+        $this->db->query($sql);
+        redirect('admin');
+    }
+}
+?>
