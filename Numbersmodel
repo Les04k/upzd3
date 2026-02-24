@@ -1,0 +1,23 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Numbersmodel extends CI_Model {
+
+    public function sel_all($category = ''){
+        if(!empty($category) && $category != 'all') {
+            $category = $this->db->escape_str($category);
+            $sql = "SELECT * FROM numbers WHERE type = '$category'";
+        } else {
+            $sql = "SELECT * FROM numbers";
+        }
+        $result = $this->db->query($sql);
+        return $result->result_array();
+    }
+public function get_room($id_n)
+{
+    $sql = "SELECT * FROM numbers WHERE id_n = $id_n";
+    $result = $this->db->query($sql);
+    return $result->row_array();
+}
+}
+?>
