@@ -1,0 +1,29 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Usermodel extends CI_Model {
+    public function login($login, $password)
+    {
+        $sql = "SELECT * FROM users WHERE logins = '$login' AND passwrd = '$password'";
+        $result = $this->db->query($sql);
+        return $result->row_array();
+    }
+    public function check_login($login)
+    {
+        $sql = "SELECT * FROM users WHERE logins = '$login'";
+        $result = $this->db->query($sql);
+        return $result->num_rows() > 0;
+    }
+    public function register($fio, $login, $password)
+    {
+        $sql = "INSERT INTO users (fio, logins, passwrd, id_role) VALUES ('$fio', '$login', '$password', 1)";
+        return $this->db->query($sql);
+    }
+    public function get_user($id_u)
+    {
+        $sql = "SELECT * FROM users WHERE id_u = $id_u";
+        $result = $this->db->query($sql);
+        return $result->row_array();
+    }
+}
+?>
